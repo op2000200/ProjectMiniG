@@ -5,6 +5,4 @@ int WinMain()
 {
 	Game game;
 	game.run();
-	game.~Game();
-	return 0;
 }

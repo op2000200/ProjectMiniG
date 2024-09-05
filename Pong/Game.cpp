@@ -14,9 +14,29 @@ Game::Game()
 	timePerTick = sf::seconds(1.f / 60.f);
 	commandQueue.clear();
 	border = new Border(side, sf::Vector2f(sf::VideoMode::getDesktopMode().width / 2, sf::VideoMode::getDesktopMode().height / 2));
-	ball = new Ball(side, sf::Vector2f(sf::VideoMode::getDesktopMode().width / 2, sf::VideoMode::getDesktopMode().height / 2));
+	ball = new Ball(side, sf::Vector2f(sf::VideoMode::getDesktopMode().width / 2, sf::VideoMode::getDesktopMode().height / 2 + side / 3 - side / 50));
 	playerBoard = new Board(side, sf::Vector2f(sf::VideoMode::getDesktopMode().width / 2, sf::VideoMode::getDesktopMode().height / 2 + side / 3));
 	opponentBoard = new Board(side, sf::Vector2f(sf::VideoMode::getDesktopMode().width / 2, sf::VideoMode::getDesktopMode().height / 2 - side / 3));
+	playState = Waiting;
+	angleMeter.setSize(sf::Vector2f(
+		side / 10,
+		side / 100
+	));
+	angleMeter.setOrigin(sf::Vector2f(
+		0,
+		angleMeter.getSize().y / 2
+	));
+	angleMeter.setPosition(sf::Vector2f(0,0));
+	angleMeter.setFillColor(sf::Color::White);
+	angleMeter.setRotation(-90);
+	angleMeter2.setRadius(1);
+	angleMeter2.setOrigin(sf::Vector2f(
+		angleMeter2.getRadius(),
+		angleMeter2.getRadius()
+	));
+	angleMeter2.setPosition(sf::Vector2f(0,0));
+	angleMeter2.setFillColor(sf::Color::White);
+	angleMeter2.setPointCount(360);
 }
 
 Game::~Game()
@@ -41,13 +61,43 @@ void Game::run()
 
 void Game::initialisation()
 {
+	srand(time(0));
 }
 
 void Game::events()
 {
+	Command command;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+	{
+		command.name = Close;
+		commandQueue.push_back(command);
+	}
+	if (playState == Waiting)
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+		{
+			command.name = Launch;
+			commandQueue.push_back(command);
+		}
+	}
+	if (playState == Playing)
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		{
+			command.name = MoveL;
+			commandQueue.push_back(command);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		{
+			command.name = MoveR;
+			commandQueue.push_back(command);
+		}
+	}
 
 	//last commands
-	Command command;
+
+	command.name = Tick;
+	commandQueue.push_back(command);
 	command.name = Clear;
 	commandQueue.push_back(command);
 	command.name = Draw;
@@ -73,6 +123,7 @@ void Game::commands()
 			window.draw(ball->getBody());
 			window.draw(playerBoard->getBody());
 			window.draw(opponentBoard->getBody());
+			window.draw(angleMeter);
 			break;
 		}
 		case Display:
@@ -80,11 +131,78 @@ void Game::commands()
 			window.display();
 			break;
 		}
+		case Close:
+		{
+			window.close();
+			break;
+		}
+		case Launch:
+		{
+			playState = Playing;
+			int deg = rand() % 10 - 5;
+			//int deg = 135;
+			ball->setDeg(deg);
+			break;
+		}
+		case Tick:
+		{
+			//move ball
+			if (playState == Playing)
+			{
+				ballUpdate();
+			}
+			break;
+		}
+		case MoveL:
+		{
+			sf::Vector2f delta;
+			for (int i = 0; i < 10; i++)
+			{
+				delta.x = (-0.1 * i) * timePerTick.asSeconds() * side / 3;
+				if (playerBoard->getBody().getPosition().x - playerBoard->getBody().getSize().x / 2 - delta.x < border->getBody().getPosition().x - border->getBody().getSize().x / 2)
+				{
+					break;
+				}
+			}
+			delta.y = 0;
+			playerBoard->move(delta);
+			break;
+		}
+		case MoveR:
+		{
+			sf::Vector2f delta;
+			for (int i = 0; i < 10; i++)
+			{
+				delta.x = (0.1 * i) * timePerTick.asSeconds() * side / 3;
+				if (playerBoard->getBody().getPosition().x + playerBoard->getBody().getSize().x / 2 + delta.x > border->getBody().getPosition().x + border->getBody().getSize().x / 2)
+				{
+					break;
+				}
+			}
+			delta.y = 0;
+			playerBoard->move(delta);
+			break;
+		}
 		default:
 			break;
 		}
 	}
 	commandQueue.clear();
+}
+
+void Game::ballUpdate()
+{
+	sf::Vector2f delta;
+	//for (int i = 0; i < angleMeter2.getPointCount(); i++)
+	//{
+	//	sf::Vector2f buf;
+	//	buf = angleMeter2.getPoint(i);
+	//	delta = buf;
+	//}
+
+	delta.x = (angleMeter2.getPoint(ball->getBody().getRotation()).x - 1) * timePerTick.asSeconds() * side / 2;
+	delta.y = (angleMeter2.getPoint(ball->getBody().getRotation()).y - 1) * timePerTick.asSeconds() * side / 2;
+	ball->move(delta);
 }
 
 Board::Board()
@@ -114,6 +232,11 @@ sf::RectangleShape Board::getBody()
 	return body;
 }
 
+void Board::move(sf::Vector2f delta)
+{
+	body.move(delta);
+}
+
 Ball::Ball()
 {
 }
@@ -136,6 +259,26 @@ Ball::~Ball()
 sf::CircleShape Ball::getBody()
 {
 	return body;
+}
+
+void Ball::move(sf::Vector2f delta)
+{
+	body.move(delta);
+}
+
+void Ball::setDir(sf::Vector2f dr)
+{
+	dir = dir;
+}
+
+sf::Vector2f Ball::getDir()
+{
+	return dir;
+}
+
+void Ball::setDeg(int dg)
+{
+	body.setRotation(dg);
 }
 
 Border::Border()

@@ -7,7 +7,18 @@ enum CommandName
 {
 	Clear,
 	Draw,
-	Display
+	Display,
+	Close,
+	MoveL,
+	MoveR,
+	Launch,
+	Tick
+};
+
+enum PlayState
+{
+	Waiting,
+	Playing
 };
 
 struct Command
@@ -23,6 +34,7 @@ public:
 	~Board();
 
 	sf::RectangleShape getBody();
+	void move(sf::Vector2f delta);
 private:
 	sf::RectangleShape body;
 };
@@ -35,8 +47,13 @@ public:
 	~Ball();
 
 	sf::CircleShape getBody();
+	void move(sf::Vector2f delta);
+	void setDir(sf::Vector2f dr);
+	sf::Vector2f getDir();
+	void setDeg(int dg);
 private:
 	sf::CircleShape body;
+	sf::Vector2f dir;
 };
 
 class Border
@@ -62,6 +79,7 @@ public:
 	void initialisation();
 	void events();
 	void commands();
+	void ballUpdate();
 private:
 	int side;
 	sf::RenderWindow window;
@@ -72,5 +90,8 @@ private:
 	Board* opponentBoard;
 	Ball* ball;
 	Border* border;
+	PlayState playState;
+	sf::RectangleShape angleMeter;
+	sf::CircleShape angleMeter2;
 };
 
