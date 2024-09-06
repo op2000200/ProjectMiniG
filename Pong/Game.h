@@ -80,6 +80,7 @@ public:
 	void events();
 	void commands();
 	void ballUpdate();
+	void boardUpdate();
 private:
 	int side;
 	sf::RenderWindow window;
