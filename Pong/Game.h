@@ -94,5 +94,7 @@ private:
 	PlayState playState;
 	sf::RectangleShape angleMeter;
 	sf::CircleShape angleMeter2;
+	float boardSpeed;
+	float ballSpeed;
 };
 

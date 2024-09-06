@@ -14,7 +14,7 @@ Game::Game()
 	timePerTick = sf::seconds(1.f / 60.f);
 	commandQueue.clear();
 	border = new Border(side, sf::Vector2f(sf::VideoMode::getDesktopMode().width / 2, sf::VideoMode::getDesktopMode().height / 2));
-	ball = new Ball(side, sf::Vector2f(sf::VideoMode::getDesktopMode().width / 2, sf::VideoMode::getDesktopMode().height / 2 + side / 3 - side / 50));
+	ball = new Ball(side, sf::Vector2f(sf::VideoMode::getDesktopMode().width / 2, sf::VideoMode::getDesktopMode().height / 2 + side / 3 - side / 25));
 	playerBoard = new Board(side, sf::Vector2f(sf::VideoMode::getDesktopMode().width / 2, sf::VideoMode::getDesktopMode().height / 2 + side / 3));
 	opponentBoard = new Board(side, sf::Vector2f(sf::VideoMode::getDesktopMode().width / 2, sf::VideoMode::getDesktopMode().height / 2 - side / 3));
 	playState = Waiting;
@@ -37,6 +37,8 @@ Game::Game()
 	angleMeter2.setPosition(sf::Vector2f(0,0));
 	angleMeter2.setFillColor(sf::Color::White);
 	angleMeter2.setPointCount(360);
+	ballSpeed = side / 4;
+	boardSpeed = side / 2;
 }
 
 Game::~Game()
@@ -139,8 +141,8 @@ void Game::commands()
 		case Launch:
 		{
 			playState = Playing;
-			//int deg = rand() % 10 - 5;
-			int deg = 60;
+			int deg = rand() % 60 - 30;
+			//int deg = 60;
 			ball->setDeg(deg);
 			break;
 		}
@@ -159,7 +161,7 @@ void Game::commands()
 			sf::Vector2f delta;
 			for (int i = 0; i < 10; i++)
 			{
-				delta.x = (-0.1 * i) * timePerTick.asSeconds() * side / 3;
+				delta.x = (-0.1 * i) * timePerTick.asSeconds() * boardSpeed;
 				if (playerBoard->getBody().getPosition().x - playerBoard->getBody().getSize().x / 2 - delta.x < border->getBody().getPosition().x - border->getBody().getSize().x / 2)
 				{
 					break;
@@ -174,7 +176,7 @@ void Game::commands()
 			sf::Vector2f delta;
 			for (int i = 0; i < 10; i++)
 			{
-				delta.x = (0.1 * i) * timePerTick.asSeconds() * side / 3;
+				delta.x = (0.1 * i) * timePerTick.asSeconds() * boardSpeed;
 				if (playerBoard->getBody().getPosition().x + playerBoard->getBody().getSize().x / 2 + delta.x > border->getBody().getPosition().x + border->getBody().getSize().x / 2)
 				{
 					break;
@@ -194,27 +196,71 @@ void Game::commands()
 void Game::ballUpdate()
 {
 	sf::Vector2f delta;
-	//for (int i = 0; i < angleMeter2.getPointCount(); i++)
-	//{
-	//	sf::Vector2f buf;
-	//	buf = angleMeter2.getPoint(i);
-	//	delta = buf;
-	//}
 
-	delta.x = (angleMeter2.getPoint(ball->getBody().getRotation()).x - 1) * timePerTick.asSeconds() * side / 2;
-	delta.y = (angleMeter2.getPoint(ball->getBody().getRotation()).y - 1) * timePerTick.asSeconds() * side / 2;
+	delta.x = (angleMeter2.getPoint(ball->getBody().getRotation()).x - 1) * timePerTick.asSeconds() * ballSpeed;
+	delta.y = (angleMeter2.getPoint(ball->getBody().getRotation()).y - 1) * timePerTick.asSeconds() * ballSpeed;
 	if (ball->getBody().getPosition().y - ball->getBody().getRadius() + delta.y < opponentBoard->getBody().getPosition().y + opponentBoard->getBody().getSize().y / 2)
 	{
-		if (ball->getBody().getPosition().x > opponentBoard->getBody().getPosition().x - opponentBoard->getBody().getSize().x / 2 and ball->getBody().getPosition().x < opponentBoard->getBody().getPosition().x + opponentBoard->getBody().getSize().x / 2)
+		if (ball->getBody().getPosition().x + ball->getBody().getRadius() > opponentBoard->getBody().getPosition().x - opponentBoard->getBody().getSize().x / 2 and ball->getBody().getPosition().x - ball->getBody().getRadius() < opponentBoard->getBody().getPosition().x + opponentBoard->getBody().getSize().x / 2)
 		{
-			ball->setDeg(180 - ball->getBody().getRotation());
+			if (ball->getBody().getPosition().x == opponentBoard->getBody().getPosition().x)
+			{
+				ball->setDeg(180 - ball->getBody().getRotation());
+			}
+			if (ball->getBody().getPosition().x < opponentBoard->getBody().getPosition().x)
+			{
+				if (ball->getBody().getPosition().x < opponentBoard->getBody().getPosition().x - opponentBoard->getBody().getSize().x / 4)
+				{
+					ball->setDeg(175 - ball->getBody().getRotation());
+				}
+				else
+				{
+					ball->setDeg(178 - ball->getBody().getRotation());
+				}
+			}
+			if (ball->getBody().getPosition().x > opponentBoard->getBody().getPosition().x)
+			{
+				if (ball->getBody().getPosition().x > opponentBoard->getBody().getPosition().x + opponentBoard->getBody().getSize().x / 4)
+				{
+					ball->setDeg(185 - ball->getBody().getRotation());
+				}
+				else
+				{
+					ball->setDeg(182 - ball->getBody().getRotation());
+				}
+			}
 		}
 	}
 	if (ball->getBody().getPosition().y + ball->getBody().getRadius() + delta.y > playerBoard->getBody().getPosition().y - playerBoard->getBody().getSize().y / 2)
 	{
-		if (ball->getBody().getPosition().x > playerBoard->getBody().getPosition().x - playerBoard->getBody().getSize().x / 2 and ball->getBody().getPosition().x < playerBoard->getBody().getPosition().x + playerBoard->getBody().getSize().x / 2)
+		if (ball->getBody().getPosition().x + ball->getBody().getRadius() > playerBoard->getBody().getPosition().x - playerBoard->getBody().getSize().x / 2 and ball->getBody().getPosition().x - ball->getBody().getRadius() < playerBoard->getBody().getPosition().x + playerBoard->getBody().getSize().x / 2)
 		{
-			ball->setDeg(180 - ball->getBody().getRotation());
+			if (ball->getBody().getPosition().x == playerBoard->getBody().getPosition().x)
+			{
+				ball->setDeg(180 - ball->getBody().getRotation());
+			}
+			if (ball->getBody().getPosition().x < playerBoard->getBody().getPosition().x)
+			{
+				if (ball->getBody().getPosition().x < playerBoard->getBody().getPosition().x - playerBoard->getBody().getSize().x / 4)
+				{
+					ball->setDeg(160 - ball->getBody().getRotation());
+				}
+				else
+				{
+					ball->setDeg(170 - ball->getBody().getRotation());
+				}
+			}
+			if (ball->getBody().getPosition().x > playerBoard->getBody().getPosition().x)
+			{
+				if (ball->getBody().getPosition().x > playerBoard->getBody().getPosition().x + playerBoard->getBody().getSize().x / 4)
+				{
+					ball->setDeg(200 - ball->getBody().getRotation());
+				}
+				else
+				{
+					ball->setDeg(190 - ball->getBody().getRotation());
+				}
+			}
 		}
 	}
 	if (ball->getBody().getPosition().x - ball->getBody().getRadius() + delta.x < border->getBody().getPosition().x - border->getBody().getSize().x / 2)
@@ -226,6 +272,15 @@ void Game::ballUpdate()
 		ball->setDeg(-ball->getBody().getRotation());
 	}
 	ball->move(delta);
+	ballSpeed += side / 2000;
+	if (ball->getBody().getPosition().y - ball->getBody().getRadius() < opponentBoard->getBody().getPosition().y + opponentBoard->getBody().getSize().y / 2)
+	{
+		//win
+	}
+	if (ball->getBody().getPosition().y + ball->getBody().getRadius() > playerBoard->getBody().getPosition().y - playerBoard->getBody().getSize().y / 2)
+	{
+		//lose
+	}
 }
 
 void Game::boardUpdate()
@@ -236,7 +291,7 @@ void Game::boardUpdate()
 		sf::Vector2f delta;
 		for (int i = 0; i < 10; i++)
 		{
-			delta.x = (-0.1 * i) * timePerTick.asSeconds() * side / 2;
+			delta.x = (-0.1 * i) * timePerTick.asSeconds() * boardSpeed;
 			if (opponentBoard->getBody().getPosition().x - opponentBoard->getBody().getSize().x / 2 - delta.x < border->getBody().getPosition().x - border->getBody().getSize().x / 2)
 			{
 				break;
@@ -251,7 +306,7 @@ void Game::boardUpdate()
 		sf::Vector2f delta;
 		for (int i = 0; i < 10; i++)
 		{
-			delta.x = (0.1 * i) * timePerTick.asSeconds() * side / 2;
+			delta.x = (0.1 * i) * timePerTick.asSeconds() * boardSpeed;
 			if (opponentBoard->getBody().getPosition().x + opponentBoard->getBody().getSize().x / 2 + delta.x > border->getBody().getPosition().x + border->getBody().getSize().x / 2)
 			{
 				break;
@@ -270,7 +325,7 @@ Board::Board(int side, sf::Vector2f position)
 {
 	body.setSize(sf::Vector2f(
 		side / 10,
-		side / 100
+		side / 75
 	));
 	body.setOrigin(sf::Vector2f(
 		body.getSize().x / 2,
@@ -300,7 +355,7 @@ Ball::Ball()
 
 Ball::Ball(int side, sf::Vector2f position)
 {
-	body.setRadius(side / 100);
+	body.setRadius(side / 50);
 	body.setOrigin(sf::Vector2f(
 		body.getRadius(),
 		body.getRadius()
