@@ -93,51 +93,49 @@ void Game::initialisation()
 		sf::VideoMode::getDesktopMode().width / 2 - side / 2,
 		sf::VideoMode::getDesktopMode().height / 2 - (side / 20 + side / 30)
 	));
+	window.setMouseCursorGrabbed(true);
+	window.setMouseCursorVisible(false);
 }
 
 void Game::events()
 {
-	if (window.hasFocus())
+	Command command;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 	{
-		Command command;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-		{
-			command.name = Close;
-			commandQueue.push_back(command);
-		}
-		if (playState == Waiting)
-		{
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-			{
-				command.name = Launch;
-				commandQueue.push_back(command);
-			}
-		}
-		if (playState == Playing)
-		{
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-			{
-				command.name = MoveL;
-				commandQueue.push_back(command);
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-			{
-				command.name = MoveR;
-				commandQueue.push_back(command);
-			}
-		}
-
-		//last commands
-
-		command.name = Tick;
-		commandQueue.push_back(command);
-		command.name = Clear;
-		commandQueue.push_back(command);
-		command.name = Draw;
-		commandQueue.push_back(command);
-		command.name = Display;
+		command.name = Close;
 		commandQueue.push_back(command);
 	}
+	if (playState == Waiting)
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+		{
+			command.name = Launch;
+			commandQueue.push_back(command);
+		}
+	}
+	if (playState == Playing)
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		{
+			command.name = MoveL;
+			commandQueue.push_back(command);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		{
+			command.name = MoveR;
+			commandQueue.push_back(command);
+		}
+	}
+
+	//last commands
+	command.name = Tick;
+	commandQueue.push_back(command);
+	command.name = Clear;
+	commandQueue.push_back(command);
+	command.name = Draw;
+	commandQueue.push_back(command);
+	command.name = Display;
+	commandQueue.push_back(command);
 }
 
 void Game::commands()
