@@ -81,6 +81,7 @@ public:
 	void commands();
 	void ballUpdate();
 	void boardUpdate();
+	void reset();
 private:
 	int side;
 	sf::RenderWindow window;
@@ -96,5 +97,11 @@ private:
 	sf::CircleShape angleMeter2;
 	float boardSpeed;
 	float ballSpeed;
+	sf::Font font;
+	sf::Text escape;
+	sf::Text space;
+	sf::Text score;
+	int plScore;
+	int opScore;
 };
 
