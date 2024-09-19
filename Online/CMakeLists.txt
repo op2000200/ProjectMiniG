@@ -22,9 +22,8 @@ FetchContent_MakeAvailable(SFML)
 
 # Добавьте источник в исполняемый файл этого проекта.
 add_executable (Online "Online.cpp"  "Server.h" "Server.cpp")
-target_link_libraries(Online PRIVATE sfml-graphics)
+target_link_libraries(Online PRIVATE sfml-graphics sfml-network)
 target_compile_features(Online PRIVATE cxx_std_17)
-add_definitions(SFML_STATIC)
 
 if(WIN32)
     add_custom_command(

@@ -1,8 +1,14 @@
 #pragma once
 #include <iostream>
 #include "SFML/Network.hpp"
-#include "SFML/Graphics.hpp"
-#include "SFML/System.hpp"
+#include <vector>
+
+struct Connection
+{
+	sf::TcpSocket* socket;
+	sf::IpAddress address;
+};
+
 
 class Server
 {
@@ -12,5 +18,6 @@ public:
 	void run();
 
 private:
-	
+	std::vector<Connection> connections;
+	sf::TcpListener listener;
 };

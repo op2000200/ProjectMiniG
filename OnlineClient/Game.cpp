@@ -18,7 +18,7 @@ void Game::run()
     }
     else
     {
-        std::cout << "Connetction error\n";
+        std::cout << "Connection error\n";
     }
 	while (true)
 	{

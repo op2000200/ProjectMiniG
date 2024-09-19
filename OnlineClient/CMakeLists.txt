@@ -22,7 +22,7 @@ FetchContent_MakeAvailable(SFML)
 
 # Добавьте источник в исполняемый файл этого проекта.
 add_executable (Online "Online.cpp"  "Game.h" "Game.cpp")
-target_link_libraries(Online PRIVATE sfml-graphics)
+target_link_libraries(Online PRIVATE sfml-graphics sfml-network)
 target_compile_features(Online PRIVATE cxx_std_17)
 
 if(WIN32)
@@ -36,6 +36,5 @@ endif()
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Online PROPERTY CXX_STANDARD 20)
 endif()
-
 
 # TODO: Добавьте тесты и целевые объекты, если это необходимо.
