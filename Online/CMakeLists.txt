@@ -24,9 +24,19 @@ FetchContent_MakeAvailable(SFML)
 add_executable (Online "Online.cpp"  "Server.h" "Server.cpp")
 target_link_libraries(Online PRIVATE sfml-graphics)
 target_compile_features(Online PRIVATE cxx_std_17)
+add_definitions(SFML_STATIC)
+
+if(WIN32)
+    add_custom_command(
+        TARGET Online
+        COMMENT "Copy OpenAL DLL"
+        PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${SFML_SOURCE_DIR}/extlibs/bin/$<IF:$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>,x64,x86>/openal32.dll $<TARGET_FILE_DIR:Online>
+        VERBATIM)
+endif()
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Online PROPERTY CXX_STANDARD 20)
 endif()
+
 
 # TODO: Добавьте тесты и целевые объекты, если это необходимо.

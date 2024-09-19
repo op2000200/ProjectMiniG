@@ -10,6 +10,10 @@ Server::~Server()
 
 void Server::run()
 {
-	std::cout << "Server run";
+	std::cout << "Server started\n";
+	while (true)
+	{
+	}
+	
 	return;
 }
